@@ -51,6 +51,61 @@ namespace EFP48.EFCore
                 Console.WriteLine(item);
             }
 
+            using (var context = new DataContext())
+            {
+
+                var brands = context.Products
+                    .GroupBy(p => p.Brand.Name)
+                    .Select(g => new
+                    {
+                        Brand = g.Key,
+                        ProductCount = g.Count()
+                    })
+                    .ToList();
+
+                foreach (var b in brands)
+                {
+                    Console.WriteLine($"{b.Brand} - {b.ProductCount}");
+                }
+
+
+                var avgPrice = context.Products
+                    .GroupBy(p => p.Category.Name)
+                    .Select(g => new
+                    {
+                        Category = g.Key,
+                        AvgPrice = g.Average(p => p.Price)
+                    })
+                    .ToList();
+
+                foreach (var c in avgPrice)
+                {
+                    Console.WriteLine($"{c.Category} - {c.AvgPrice}");
+                }
+
+
+
+                foreach (var p in context.Products
+                    .OrderBy(p => p.Brand.Name)
+                    .ToList())
+                {
+                    Console.WriteLine($"{p.Name} {p.Brand.Name} {p.Price}");
+                }
+            }
+
+            var products = _dataContext.Products;
+            foreach (var product in products) 
+            {
+                product.DeletedAt = DateTime.UtcNow;
+            }
+
+            var deletedProducts = _dataContext.Products
+                .Where(p => p.DeletedAt != null)
+                .ToList();
+
+            _dataContext.SaveChanges();
+
+
 
             /*
              SELECT * -- all data

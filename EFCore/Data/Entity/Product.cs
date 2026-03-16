@@ -22,6 +22,9 @@
         // navigation props
         public Category? Category { get; set; }
 
+        public Guid? BrandId { get; set; }
+        public Brand? Brand { get; set; }
+
         // Вам ніхто не забороняє створювати свої методи
         public override string ToString()
         {

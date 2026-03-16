@@ -5,6 +5,8 @@
         public string CategoryName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public double Price { get; set; }
+        public string BrandName { get; set; }
+
 
         public override string ToString()
         {

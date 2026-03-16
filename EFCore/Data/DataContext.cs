@@ -51,7 +51,17 @@ namespace EFP48.EFCore.Data
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)
                 .HasPrincipalKey(c => c.Id);
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Brand)
+                .WithMany(b => b.Products)
+                .HasForeignKey(p => p.BrandId)
+                .HasPrincipalKey(b => b.Id);
+
         }
+
+        
+
+
 
 
         #region seed
