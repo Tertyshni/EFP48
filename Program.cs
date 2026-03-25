@@ -6,14 +6,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-
 namespace EFP48
 {
     public class Program
     {
 
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             // TODO: Відокремити логіку створення таблиць та данних в окремі методи
             string connectionString = @"
@@ -129,7 +128,21 @@ GROUP BY u.Name, u.Surname
                 Console.WriteLine($"{item.FullName}-> posts: {item.PostCount}");
             }
 
+            var context = new DapperContext("your_connection_string");
+
+            var userRepo = new UserRepository(context);
+            var postRepo = new PostRepository(context);
+
+            
+            var users1 = await userRepo.GetAllAsync();
+
+            foreach (var user1 in users)
+            {
+                Console.WriteLine(user.Name);
+            }
+
         }
+
 
 
         /*

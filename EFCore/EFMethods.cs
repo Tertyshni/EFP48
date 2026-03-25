@@ -3,13 +3,13 @@ using EFP48.EFCore.Data.Entity;
 using EFP48.EFCore.Data.Model;
 using EFP48.EFCore.Data.Profiles;
 using EFP48.EFCore.Data.Profiles.ProductProfiles;
-using EFP48.EFCore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using EFP48.EFCore.Data;
 
 namespace EFP48.EFCore
 {
