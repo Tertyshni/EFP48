@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 
 namespace EFP48
@@ -85,6 +86,7 @@ CREATE TABLE Posts
             {
                 new {UserId = Guid.Parse("53650437-bf01-459f-88ac-4da60f0e00ff"), Title= "Oh this a great day"},
                 new {UserId = Guid.Parse("ccfca5d4-9084-4edf-9e1f-17bb36f23b81"), Title= "Hello world"}
+
             }.ToList();
 
             //connection.Execute(query, list);
@@ -133,7 +135,7 @@ GROUP BY u.Name, u.Surname
             var userRepo = new UserRepository(context);
             var postRepo = new PostRepository(context);
 
-            
+
             var users1 = await userRepo.GetAllAsync();
 
             foreach (var user1 in users)
@@ -141,8 +143,122 @@ GROUP BY u.Name, u.Surname
                 Console.WriteLine(user.Name);
             }
 
+            query = @"
+SELECT TABLE TABLE IF EXISTS Comment;
+CREATE TABLE Comment
+(
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    PostId UNIQUEIDENTIFIER NOT NULL,
+    Content NVARCHAR(500) NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    DeletedAt DATETIME DEFAULT NULL,
+    CONSTRAINT fk_comment_user FOREIGN KEY (UserId) REFERENCES Users(Id),
+    CONSTRAINT fk_comment_post FOREIGN KEY (PostId) REFERENCES Posts(Id)
+);
+";
+
+            var comment = new
+            {
+                UserId = Guid.Parse("53650437-bf01-459f-88ac-4da60f0e00ff"),
+                PostId = Guid.Parse("some_post_id"),
+                Content = "This is a comment"
+            };
+            //connection.Execute(query, comment);
+
+            query = @"
+SELECT TABLE TABLE IF EXISTS CommentLike;
+CREATE TABLE CommentLike
+(
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    CommentId UNIQUEIDENTIFIER NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    DeletedAt DATETIME DEFAULT NULL,
+    CONSTRAINT fk_commentlike_user FOREIGN KEY (UserId) REFERENCES Users(Id),
+    CONSTRAINT fk_commentlike_comment FOREIGN KEY (CommentId) REFERENCES Comment(Id)
+);
+";
+            //connection.Execute(query);
+            var commentLike = new
+            {
+                UserId = Guid.Parse("53650437-bf01-459f-88ac-4da60f0e00ff"),
+                CommentId = Guid.Parse("some_comment_id")
+            };
+
+            query = @"
+SELECT TABLE TABLE IF EXISTS PostLike;
+CREATE TABLE CommentLike
+(
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    PostId UNIQUEIDENTIFIER NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    DeletedAt DATETIME DEFAULT NULL,
+    CONSTRAINT fk_postlike_user FOREIGN KEY (UserId) REFERENCES Users(Id),
+    CONSTRAINT fk_postlike_post FOREIGN KEY (PostId) REFERENCES Posts(Id)
+);
+";
+            //connection.Execute(query);
+            var postLike = new
+            {
+                UserId = Guid.Parse("53650437-bf01-459f-88ac-4da60f0e00ff"),
+                PostId = Guid.Parse("some_post_id")
+            };
+
+            var topComments = context.
+                .Select(p => new
+                {
+                    PostTitle = p.Title,
+                    TopComment = p.Comments
+                        .OrderByDescending(c => c.Likes.Count)
+                        .Select(c => new
+                        {
+                            c.Text,
+                            Likes = c.Likes.Count
+                        })
+                        .FirstOrDefault()
+                })
+                .ToList();
+
+            Console.WriteLine(" ТОП коментарі:");
+            foreach (var item in topComments)
+            {
+                Console.WriteLine($"Post: {item.PostTitle}");
+                Console.WriteLine($" Top comment: {item.TopComment?.Text} (Likes: {item.TopComment?.Likes})\n");
+            }
+
+
+            var commentCounts = context.Posts
+                .Select(p => new
+                {
+                    PostTitle = p.Title,
+                    Count = p.Comments.Count()
+                })
+                .ToList();
+
+            Console.WriteLine("🔹 Кількість коментарів:");
+            foreach (var item in commentCounts)
+            {
+                Console.WriteLine($"{item.PostTitle}: {item.Count}");
+            }
+
+
+            var topUser = context.Users
+                .Select(u => new
+                {
+                    Name = u.Name,
+                    Likes = u.Comments.SelectMany(c => c.Likes).Count()
+                })
+                .OrderByDescending(x => x.Likes)
+                .FirstOrDefault();
+
+            Console.WriteLine("\n🔹 ТОП користувач:");
+            Console.WriteLine($"{topUser.Name} - {topUser.Likes} лайків");
+
         }
 
+    }
 
 
         /*
@@ -151,7 +267,7 @@ GROUP BY u.Name, u.Surname
          2) В програмі, поверніть для кожного користувача самий останній пост
          
          */
-    }
+ }
 
     class UserPostCount
     {
@@ -173,4 +289,4 @@ Surname -> {Surname}
 ";
         }
     }
-}
+

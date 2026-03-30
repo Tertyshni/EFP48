@@ -1,4 +1,5 @@
-﻿using EFP48.EFCore.Data.Entity;
+﻿using EFP48.DapperCore.Entity;
+using EFP48.EFCore.Data.Entity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -40,26 +41,53 @@ namespace EFP48.EFCore.Data
             //.LogTo(Console.WriteLine, new[] { Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.CommandExecuted })
             //.EnableSensitiveDataLogging();
         }
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    SeedCategory(modelBuilder);
+        //    SeedProducts(modelBuilder);
+        //    //Необов'язково прописувати. Якщо EF бачить навігаційні властивості, і відповідні(ForeignKey Id's) він сам створить зовнішні ключі
+        //    // Цей метод потрібен для більшого контролю, якщо ви самі хочете створити зв'язки
+        //    modelBuilder.Entity<Product>()
+        //        .HasOne(p => p.Category)
+        //        .WithMany(c => c.Products)
+        //        .HasForeignKey(p => p.CategoryId)
+        //        .HasPrincipalKey(c => c.Id);
+        //    modelBuilder.Entity<Product>()
+        //        .HasOne(p => p.Brand)
+        //        .WithMany(b => b.Products)
+        //        .HasForeignKey(p => p.BrandId)
+        //        .HasPrincipalKey(b => b.Id);
+
+        //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            SeedCategory(modelBuilder);
-            SeedProducts(modelBuilder);
-            //Необов'язково прописувати. Якщо EF бачить навігаційні властивості, і відповідні(ForeignKey Id's) він сам створить зовнішні ключі
-            // Цей метод потрібен для більшого контролю, якщо ви самі хочете створити зв'язки
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Category)
-                .WithMany(c => c.Products)
-                .HasForeignKey(p => p.CategoryId)
-                .HasPrincipalKey(c => c.Id);
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Brand)
-                .WithMany(b => b.Products)
-                .HasForeignKey(p => p.BrandId)
-                .HasPrincipalKey(b => b.Id);
+            modelBuilder.Entity<CommentLike>()
+                .HasKey(cl => new { cl.UserId, cl.CommentId });
 
+            modelBuilder.Entity<CommentLike>()
+                .HasOne(cl => cl.User)
+                .WithMany(u => u.CommentLikes)
+                .HasForeignKey(cl => cl.UserId);
+
+            modelBuilder.Entity<CommentLike>()
+                .HasOne(cl => cl.Comment)
+                .WithMany(c => c.Likes)
+                .HasForeignKey(cl => cl.CommentId);
+
+            modelBuilder.Entity<PostLike>()
+                .HasKey(pl => new { pl.UserId, pl.PostId });
+
+            modelBuilder.Entity<PostLike>()
+                .HasOne(pl => pl.User)
+                .WithMany(u => u.PostLikes)
+                .HasForeignKey(pl => pl.UserId);
+
+            modelBuilder.Entity<PostLike>()
+                .HasOne(pl => pl.Post)
+                .WithMany(p => p.Likes)
+                .HasForeignKey(pl => pl.PostId);
         }
 
-        
 
 
 

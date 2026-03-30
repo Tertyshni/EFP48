@@ -6,6 +6,9 @@
         public string Name { get; set; }
         public string Surname { get; set; }
         public int Age { get; set; }
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<CommentLike> CommentLikes { get; set; }
+        public ICollection<PostLike> PostLikes { get; set; }
 
 
         public List<Post> Posts { get; set; }

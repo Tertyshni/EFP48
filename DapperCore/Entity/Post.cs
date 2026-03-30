@@ -9,5 +9,8 @@
         public DateTime? DeletedAt { get; set; }
 
         public User User { get; set; }
+
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<PostLike> Likes { get; set; }
     }
 }
